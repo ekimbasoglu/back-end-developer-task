@@ -19,6 +19,7 @@
   },
   "scripts": {
     "start": "node dist/server.js",
+    "seed": "ts-node src/config/seed.ts",
     "dev": "nodemon server.ts",
     "build": "tsc"
   }

@@ -1,8 +1,10 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import bcrypt from "bcryptjs";
+
 import User from "../models/userModel";
 import Content from "../models/contentModel";
-import bcrypt from "bcryptjs";
+import Rating from "../models/ratingModel";
 
 dotenv.config();
 
@@ -23,6 +25,7 @@ const seedData = async () => {
     // Clear existing data
     await User.deleteMany({});
     await Content.deleteMany({});
+    await Rating.deleteMany({});
 
     // Sample Users
     const users = await User.insertMany([
@@ -59,6 +62,27 @@ const seedData = async () => {
     ]);
 
     console.log("Content seeded");
+
+    // Sample Ratings
+    await Rating.insertMany([
+      {
+        user: users[0]._id,
+        content: content[0]._id,
+        rating: 5,
+      },
+      {
+        user: users[1]._id,
+        content: content[1]._id,
+        rating: 4,
+      },
+      {
+        user: users[0]._id,
+        content: content[1]._id,
+        rating: 3,
+      },
+    ]);
+
+    console.log("Ratings seeded");
 
     process.exit();
   } catch (error) {
