@@ -1,11 +1,76 @@
+// src/controllers/authController.ts
+
 import { Request, Response } from "express";
+import authService from "../services/authService";
+import { IUser } from "../models/userModel";
 
-const login = (req: Request, res: Response): void => {
-  res.json({ message: "Login successful!" });
+const signup = async (req: Request, res: Response): Promise<void> => {
+  const { email, username, password } = req.body;
+
+  if (
+    !email ||
+    typeof email !== "string" ||
+    !username ||
+    typeof username !== "string" ||
+    !password ||
+    typeof password !== "string"
+  ) {
+    res
+      .status(400)
+      .json({ message: "Email, username, and password are required" });
+    return;
+  }
+
+  try {
+    const user: IUser = await authService.signup(email, username, password);
+    const token = authService.generateToken(user);
+
+    res.status(201).json({
+      message: "User created successfully",
+      user: { id: user._id, email: user.email, username: user.username },
+      token,
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
-const signup = (req: Request, res: Response): void => {
-  res.json({ message: "Signup successful!" });
+const login = async (req: Request, res: Response): Promise<void> => {
+  const { email, password } = req.body;
+
+  if (
+    !email ||
+    typeof email !== "string" ||
+    !password ||
+    typeof password !== "string"
+  ) {
+    res
+      .status(400)
+      .json({ message: "Email, username, and password are required" });
+    return;
+  }
+
+  try {
+    const user: IUser | null = await authService.login(email, password);
+
+    if (!user) {
+      res.status(401).json({ message: "Invalid credentials" });
+      return;
+    }
+
+    const token = authService.generateToken(user);
+
+    res.status(200).json({
+      message: "Logged in successfully",
+      user: { id: user._id, email: user.email, username: user.username },
+      token,
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
-export default { login, signup };
+export default {
+  signup,
+  login,
+};
