@@ -2,9 +2,13 @@ import express, { Application } from "express";
 import morgan from "morgan";
 import dotenv from "dotenv";
 import logger from "./middleware/logger";
+import connectDB from "./config/db";
 
 // Load environment variables from .env file
 dotenv.config();
+
+// Connect to MongoDB
+connectDB();
 
 const app: Application = express();
 
