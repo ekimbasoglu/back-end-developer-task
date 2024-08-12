@@ -1,25 +1,9 @@
-// src/controllers/authController.ts
-
 import { Request, Response } from "express";
 import authService from "../services/authService";
 import { IUser } from "../models/userModel";
 
 const signup = async (req: Request, res: Response): Promise<void> => {
   const { email, username, password } = req.body;
-
-  if (
-    !email ||
-    typeof email !== "string" ||
-    !username ||
-    typeof username !== "string" ||
-    !password ||
-    typeof password !== "string"
-  ) {
-    res
-      .status(400)
-      .json({ message: "Email, username, and password are required" });
-    return;
-  }
 
   try {
     const user: IUser = await authService.signup(email, username, password);
@@ -37,18 +21,6 @@ const signup = async (req: Request, res: Response): Promise<void> => {
 
 const login = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;
-
-  if (
-    !email ||
-    typeof email !== "string" ||
-    !password ||
-    typeof password !== "string"
-  ) {
-    res
-      .status(400)
-      .json({ message: "Email, username, and password are required" });
-    return;
-  }
 
   try {
     const user: IUser | null = await authService.login(email, password);
