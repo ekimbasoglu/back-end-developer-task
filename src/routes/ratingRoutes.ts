@@ -5,7 +5,7 @@ import authMiddleware from "../middleware/authMiddleware";
 const router = Router();
 
 // Route to create or update a rating
-router.post("/", authMiddleware, ratingController.rateContent);
+router.post("/:contentId/rate", authMiddleware, ratingController.rateContent);
 
 // Get all ratings for a specific content item
 router.get("/content/:contentId", ratingController.getRatingsByContent);
