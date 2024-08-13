@@ -91,7 +91,7 @@ router.post("/", authMiddleware, contentController.createContent);
  *                   content_url:
  *                     type: string
  */
-router.get("/", contentController.getAllContent);
+router.get("/", authMiddleware, contentController.getAllContent);
 
 /**
  * @swagger
@@ -129,7 +129,7 @@ router.get("/", contentController.getAllContent);
  *       404:
  *         description: Content not found
  */
-router.get("/:id", contentController.getContentById);
+router.get("/:id", authMiddleware, contentController.getContentById);
 
 /**
  * @swagger

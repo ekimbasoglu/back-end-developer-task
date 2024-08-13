@@ -57,7 +57,8 @@ const seedData = async () => {
       },
       {
         title: "Blasphemous 2 Gameplay",
-        description: "This is a Blasphemous 2 Gameplay video.",
+        description:
+          "Blasphemous 2 is a metroidvania that puts you back in the hallowed boots of The Penitent one as they continue their adventure filled with religious iconography and some of the grossest enemies ever spawned. Here are the first 16 minutes of this unholy sequel.",
         category: "video",
         thumbnail_url:
           "https://assets-prd.ignimgs.com/2023/08/12/blasphemous2thumb-1691857441134.jpg",
