@@ -35,7 +35,28 @@ const createContent = async (data: Partial<IContent>): Promise<IContent> => {
 };
 
 const getAllContent = async (): Promise<IContent[]> => {
-  return await Content.find();
+  const contents = await Content.aggregate([
+    {
+      $lookup: {
+        from: "ratings",
+        localField: "_id",
+        foreignField: "content",
+        as: "ratings",
+      },
+    },
+    {
+      $addFields: {
+        averageRating: { $avg: "$ratings.rating" },
+      },
+    },
+    {
+      $project: {
+        ratings: 0,
+      },
+    },
+  ]);
+
+  return contents;
 };
 
 const getContentById = async (id: string): Promise<IContent | null> => {
