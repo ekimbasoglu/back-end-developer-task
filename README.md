@@ -1,23 +1,12 @@
 
 # Back End Developer Task
 
+    
+![react](https://media.giphy.com/media/8HXBCxfowMjt93G58s/giphy.gif)
+
 ## Overview
 
 A full-stack app that allows users to create, manage, and rate various types of content, such as games, videos, artwork, and music. The platform supports user authentication, content management, and a rating system, providing a complete CRUD (Create, Read, Update, Delete) functionality with secure access and user interactions.
-
-
-## Table of Contents
-
-1. [Project Setup](#project-setup)
-2. [API Endpoints](#api-endpoints)
-    - [Authentication](#authentication)
-    - [Content Management](#content-management)
-    - [Rating System](#rating-system)
-3. [Database](#database)
-4. [Sample Data](#sample-data)
-5. [Running Tests](#running-tests)
-6. [Documentation](#documentation)
-7. [Running the Project](#running-the-project)
 
 ## Project Setup
 
@@ -119,9 +108,6 @@ To run the project locally:
 ### Seeding the Database
 
       cd backend-app && npm run seed
-
-    
-![react](https://media.giphy.com/media/8HXBCxfowMjt93G58s/giphy.gif)
 
 
 ### [contact](mailto:ekimbasoglu@hotmail.com)
