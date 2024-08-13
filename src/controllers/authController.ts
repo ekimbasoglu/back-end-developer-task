@@ -38,6 +38,10 @@ const login = async (req: Request, res: Response): Promise<void> => {
       token,
     });
   } catch (error: any) {
+    if (error.message === "Invalid credentials") {
+      res.status(401).json({ message: "Invalid Credentials" });
+      return;
+    }
     res.status(500).json({ message: error.message });
   }
 };
