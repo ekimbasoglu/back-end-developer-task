@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { FaStar } from "react-icons/fa";
 
 interface Content {
   _id: string;
@@ -8,6 +9,7 @@ interface Content {
   thumbnail_url: string;
   content_url: string;
   created_at: string;
+  averageRating: number;
 }
 
 const ContentDashboard: React.FC = () => {
@@ -32,10 +34,48 @@ const ContentDashboard: React.FC = () => {
           },
         }
       );
-      const data = await response.json();
-      setContents(data);
+
+      if (response.status === 401) {
+        handleLogout();
+      } else {
+        const data = await response.json();
+        setContents(data);
+      }
     } catch (error) {
       console.error("Error fetching contents:", error);
+    }
+  };
+
+  const renderStars = (rating: number) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <FaStar key={i} color={i <= rating ? "#ffc107" : "#e4e5e9"} />
+      );
+    }
+    return stars;
+  };
+
+  const handleDelete = async (content: Content) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_APP_BACKEND_URI}/api/content/${content._id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        fetchContents();
+        setIsModalOpen(false);
+      } else {
+        console.error("Failed to delete content.");
+      }
+    } catch (error) {
+      console.error("Error deleting content:", error);
     }
   };
 
@@ -45,15 +85,13 @@ const ContentDashboard: React.FC = () => {
     setIsModalOpen(true);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    window.location.href = "/";
+  };
   const handleEdit = (content: Content) => {
     setSelectedContent(content);
     setModalType("update");
-    setIsModalOpen(true);
-  };
-
-  const handleDelete = (content: Content) => {
-    setSelectedContent(content);
-    setModalType("delete");
     setIsModalOpen(true);
   };
 
@@ -65,19 +103,29 @@ const ContentDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      <header className="bg-white shadow-md p-4 rounded-lg mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Content Dashboard</h1>
-        <button
-          onClick={handleCreate}
-          className="mt-4 bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded"
-        >
-          Create New Content
-        </button>
+      <header className="bg-white shadow-md p-4 rounded-lg mb-6 flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-gray-800 font-mono">
+          [dashboard]
+        </h1>
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={handleCreate}
+            className=" text-gray-800 hover:bg-gray-300  py-2 px-4 rounded"
+          >
+            [create new content]
+          </button>
+          <button
+            onClick={handleLogout}
+            className=" text-gray-800 hover:bg-gray-300  py-2 px-4 rounded"
+          >
+            [logout]
+          </button>
+        </div>
       </header>
 
-      <main className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <main className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {contents.map((content) => (
-          <div key={content.id} className="bg-white shadow-md rounded-lg p-4">
+          <div key={content._id} className="bg-white shadow-md rounded-lg p-4">
             <img
               src={content.thumbnail_url}
               alt={content.title}
@@ -86,19 +134,16 @@ const ContentDashboard: React.FC = () => {
             <h2 className="text-xl font-semibold mb-2 text-gray-800">
               {content.title}
             </h2>
-            <p className="text-gray-600 mb-4">{content.description}</p>
+            <p className="text-gray-600 mb-2">{content.description}</p>
+            <div className="flex items-center mb-4">
+              {renderStars(content.averageRating)}
+            </div>
             <div className="flex justify-between">
               <button
                 onClick={() => handleEdit(content)}
                 className="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded"
               >
                 Edit
-              </button>
-              <button
-                onClick={() => handleDelete(content)}
-                className="bg-red-500 hover:bg-red-700 text-white py-1 px-3 rounded"
-              >
-                Delete
               </button>
               <button
                 onClick={() => handleRate(content)}
@@ -116,6 +161,7 @@ const ContentDashboard: React.FC = () => {
           content={selectedContent}
           modalType={modalType}
           closeModal={() => setIsModalOpen(false)}
+          handleDelete={handleDelete}
           refreshContents={fetchContents}
         />
       )}
@@ -128,8 +174,9 @@ const Modal: React.FC<{
   content: Content | null;
   modalType: "create" | "update" | "delete" | "rate";
   closeModal: () => void;
+  handleDelete: (content: Content) => void;
   refreshContents: () => void;
-}> = ({ content, modalType, closeModal, refreshContents }) => {
+}> = ({ content, modalType, closeModal, handleDelete, refreshContents }) => {
   const [formData, setFormData] = useState({
     title: content?.title || "",
     description: content?.description || "",
@@ -156,7 +203,7 @@ const Modal: React.FC<{
         );
       } else if (modalType === "update" && content) {
         response = await fetch(
-          `${import.meta.env.VITE_APP_BACKEND_URI}/api/content/${content.id}`,
+          `${import.meta.env.VITE_APP_BACKEND_URI}/api/content/${content._id}`,
           {
             method: "PUT",
             headers: {
@@ -168,7 +215,7 @@ const Modal: React.FC<{
         );
       } else if (modalType === "delete" && content) {
         response = await fetch(
-          `${import.meta.env.VITE_APP_BACKEND_URI}/api/content/${content.id}`,
+          `${import.meta.env.VITE_APP_BACKEND_URI}/api/content/${content._id}`,
           {
             method: "DELETE",
             headers: {
@@ -187,7 +234,7 @@ const Modal: React.FC<{
               "Content-Type": "application/json",
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-            body: JSON.stringify({ rating: parseInt(formData.category) }), // Assuming rating is passed as category for simplicity
+            body: JSON.stringify({ rating: parseInt(formData.category) }),
           }
         );
       }
@@ -196,7 +243,7 @@ const Modal: React.FC<{
         refreshContents();
         closeModal();
       } else {
-        console.error("Failed to perform action on content.");
+        alert("It's been rated already");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -250,14 +297,7 @@ const Modal: React.FC<{
               }
               placeholder="Content URL"
             />
-            <div className="flex justify-end space-x-2">
-              <button
-                type="button"
-                onClick={closeModal}
-                className="bg-gray-500 hover:bg-gray-700 text-white py-1 px-3 rounded"
-              >
-                Cancel
-              </button>
+            <div className="flex justify-between">
               <button
                 type="button"
                 onClick={handleSubmit}
@@ -265,6 +305,22 @@ const Modal: React.FC<{
               >
                 Save
               </button>
+              <button
+                type="button"
+                onClick={closeModal}
+                className="bg-gray-500 hover:bg-gray-700 text-white py-1 px-3 rounded"
+              >
+                Cancel
+              </button>
+              {modalType === "update" && (
+                <button
+                  type="button"
+                  onClick={() => handleDelete(content!)}
+                  className="bg-red-500 hover:bg-red-700 text-white py-1 px-3 rounded"
+                >
+                  Delete
+                </button>
+              )}
             </div>
           </form>
         )}
